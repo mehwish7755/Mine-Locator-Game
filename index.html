@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mine Locator Game</title>
+    <style>
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 30px);
+            grid-gap: 2px;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 30px;
+            height: 30px;
+            background-color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .cell.mine {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mine Locator Game</h1>
+    <div>
+        <label for="num-mines">Number of Mines:</label>
+        <input type="number" id="num-mines" min="1" max="24" value="3">
+        <button onclick="initializeGame()">Start Game</button>
+    </div>
+    <div id="game-board" class="game-board"></div>
+    <p id="result"></p>
+    
+    <script>
+        let numMines;
+        let numBoxesToPlay;
+        let gameActive = false;
+
+        function initializeGame() {
+            document.getElementById("result").textContent = '';
+            numMines = parseInt(document.getElementById("num-mines").value);
+            numBoxesToPlay = numMines;
+            const boardSize = 25;
+            const board = document.getElementById("game-board");
+            board.innerHTML = '';
+            gameActive = true;
+
+            let minePositions = new Set();
+            while (minePositions.size < numMines) {
+                minePositions.add(Math.floor(Math.random() * boardSize));
+            }
+
+            for (let i = 0; i < boardSize; i++) {
+                const cell = document.createElement("div");
+                cell.className = 'cell';
+                board.appendChild(cell);
+
+                if (minePositions.has(i)) {
+                    cell.dataset.mine = "true";
+                }
+
+                cell.onclick = function() {
+                    if (!gameActive) return; // Stop game if already ended
+                    if (cell.dataset.mine === "true") {
+                        cell.classList.add("mine");
+                        cell.textContent = '💣';
+                        document.getElementById("result").textContent = "Boom! There was a mine. Game Over.";
+                        gameActive = false;
+                    } else {
+                        cell.textContent = '✅';
+                        cell.style.backgroundColor = "green";
+                        numBoxesToPlay--;
+                        if (numBoxesToPlay === 0) {
+                            document.getElementById("result").textContent = "You've clicked all allowed boxes. Game Over.";
+                            gameActive = false;
+                        }
+                    }
+                    cell.onclick = null; // Disable further clicks on this cell
+                };
+            }
+        }
+    </script>
+</body>
+</html>
